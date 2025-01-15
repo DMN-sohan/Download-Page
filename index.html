@@ -1,102 +1,137 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Video Downloader</title>
     <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 20px; /* Add padding around the content */
+        margin: 0; /* Remove default margin */
+        padding-top: 50px; /* Add extra padding from the top */
+        background-color: #f9f9f9; /* Light background for better readability */
+      }
+
+      input {
+        padding: 10px; /* Increase padding for easier touch interaction */
+        margin: 15px 10px; /* Add more margin for better spacing */
+        border: 1px solid #ccc;
+        border-radius: 6px; /* Slightly larger border radius for better appearance */
+        width: 80%; /* Make inputs more responsive */
+        max-width: 400px; /* Limit the input width on larger screens */
+        box-sizing: border-box; /* Ensure padding doesn't affect width */
+      }
+
+      button {
+        padding: 10px 15px; /* Larger padding for better touch support */
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 6px; /* Match input's border radius */
+        cursor: pointer;
+        font-size: 16px; /* Slightly larger font size for readability */
+        width: auto;
+        min-width: 100px; /* Ensure buttons are not too small */
+      }
+
+      button:hover {
+        background-color: #45a049; /* Subtle hover effect for better feedback */
+      }
+
+      /* Add media queries for mobile */
+      @media (max-width: 768px) {
         body {
-            font-family: sans-serif;
-            text-align: center;
+          padding-top: 70px; /* Add even more padding for mobile */
         }
         input {
-            padding: 5px;
-            margin: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+          width: 90%; /* Make inputs wider on small screens */
         }
         button {
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+          width: 90%; /* Buttons take up more width */
+          max-width: 300px; /* Limit the button width */
         }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Video Downloader</h1>
-    <input type="text" id="videoNumber" placeholder="Enter video number">
+    <input type="text" id="videoNumber" placeholder="Enter video number" />
     <button onclick="downloadVideo()">Download</button>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script> 
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script> 
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
     <script>
-        // Firebase configuration
+      // Firebase configuration
 
-        function reverseShiftedJSON(shiftedJSON) {
-            function reverseShift(value) {
-                return value
-                    .split('')
-                    .map(char => String.fromCharCode(char.charCodeAt(0) - 1))
-                    .join('');
-            }
-
-            const originalJSON = {};
-            for (const key in shiftedJSON) {
-                if (typeof shiftedJSON[key] === 'string') {
-                    originalJSON[key] = reverseShift(shiftedJSON[key]);
-                } else {
-                    originalJSON[key] = shiftedJSON[key]; // Keep non-string values as is
-                }
-            }
-            return originalJSON;
+      function reverseShiftedJSON(shiftedJSON) {
+        function reverseShift(value) {
+          return value
+            .split("")
+            .map((char) => String.fromCharCode(char.charCodeAt(0) - 1))
+            .join("");
         }
 
-        const firebaseConfig = {
-            "type": "tfswjdf`bddpvou",
-            "project_id": "hvoepkvt.qspe",
-            "private_key_id": "9b82ff7b1c:966c7f7gb4d92c998g7597:333e78",
-            "private_key": ".....CFHJO!QSJWBUF!LFZ.....\u000bNJJFwBJCBEBOChlriljH:x1CBRFGBBTDCLZxhhTjBhFBBpJCBRD47KDgZE4osS6o\u000b5u,TpIkuoeyQIw,Wr8W2RGMwcd8yIkJvDRPvzBmSXM81e38LoL{DvMdprnJBYOYT\u000bSmqDX:e6YGg5m6MZndshk{jrlYkDsjBgtOsx9,TuEZvBM5C:Dzkum7GSpZx8j5:c\u000bmmicgx18{PYDrhBrNRHODKW46b{o73ZGMQ:lBMl8m0sc0BzpNGxcsMQ3fOSpJGzV\u000b5{BmQ,M[Yntj0pWZmEF0d[jMng8UW1WpgiCOQ[wuhHtbEQdzbzYyvbNl75Wqf078\u000bO2QzVYtGjQ4PhViYhNwhsd:Mp8DO3cyp0p:xR1ZOzO9Jtmim0,4::wqfqN{y:nmP\u000bfMn0VJXmBhNCBBFDhhFBPP2y,xviEgqvL511WLC94m{creh5HG4wER{tw{XY:eZ6\u000biUvBHuYM5KUfh{FILBvpiKxHBk40nRpkn0QxF6O4WyeKHfgebmQt13dzEN[9B[OC\u000b3W235Gh3yJTqWoRez2duh7KJrtrecI9vVKUx5:3owJfY6[LX,4ix,QXcxvIkEHTx\u000bocqlOC816hhTB4376VgRt[YRKl,0wj8NdWBWhlGz[jvEFLTp3Ct89XNJ:r6urT9U\u000bq,4FfSrSjXfzBOHvTTN,LgZXVHBNNuC2m67b5H{ysJuNQswpx{tR4c5HQO4tWSq9\u000b13mMv7NTkolXdPGZVujP{o4dz4X{mmMulFJ6yohtsxLChREjC7XcXrk0bwb7oUWE\u000blKGbLr2rLRek28DmvoqHn:nL66lDUCXuxSfHSKePF,XRPct91u8CFEcqCd4Ln8[h\u000bcqc574i7jKiblFu7OJ6Z:rUXpBH9rqXGOqFT,,tWxKUoVXJdberc64Y9ZmuvB2vz\u000bP0QvQLrB2:YFIuzWoJ2dqS0G{xLChRERTz[Q3Ielw8cW7KQqnxehFDyG35DSzRJE\u000bh4oCQuwK74nrf6[xVbVXM25vxnTiTLR8V5mQJ6lQr2ti:edMjIF,YgMekvnSnJ2G\u000bL6ERj2Qhl,47SuGHScFtgqXKHxxmbcxYcTKp9d28IiXC[rli1WLUl4vE0Yy0dGF,\u000b6kkzQywPTxLChIFBv8ZB{H8vEj6dQH4tFB:SPPQUZXO1TWfC:IIrqxeBKJp3fcxm\u000bympWYtQmSLdoidny8{Y9pld86Kg0521x{Q0k1[dKSZp6j:LtCfML[M{9xBHRF{MI\u000bii6FomLBusF{TfcFtVvzn6V{p2yNC5NEZE0jTrhixEkO7TCQ[ZmF9L7YBpHBUf9h\u000bT[X8snXR,m6JJZsR7q,DhT{N5U9uVsV6uCW[2TZX5sQWLQeU[pbZocR9SLCTXrR6\u000b6wOy{JxY1CBVxxsuIDH5xj98tz97CGy2mbIc52[XI3Pq48pqwYVscC6EpDg9rXN8\u000bFctQY0[1p4NP71mQuVolXCGcLL,Vqp1sW4CIcitDhZBTgCJnO,67uoEw1fH1UPWe\u000bEvXIZkcWHLOqCtz59rRS7QLXm0I17RQY7CyR9b3:CYUIEhF2W[[oWBftLsr[SLio\u000bFQzZ4jHkitT[We6jPzfjNfNhRhz8CkZ:FNiSXpwbMGmVH1l21hqWCxEkewtuGewz\u000b4DfkSxOozK,uwnDMRyieqh>>\u000b.....FOE!QSJWBUF!LFZ.....\u000b",
-            "client_email": "gjsfcbtf.benjotel.vr75bAhvoepkvt.qspe/jbn/htfswjdfbddpvou/dpn",
-            "client_id": "21317218662834266:966",
-            "auth_uri": "iuuqt;00bddpvout/hpphmf/dpn0p0pbvui30bvui",
-            "token_uri": "iuuqt;00pbvui3/hpphmfbqjt/dpn0uplfo",
-            "auth_provider_x509_cert_url": "iuuqt;00xxx/hpphmfbqjt/dpn0pbvui30w20dfsut",
-            "client_x509_cert_url": "iuuqt;00xxx/hpphmfbqjt/dpn0spcpu0w20nfubebub0y61:0gjsfcbtf.benjotel.vr75b&51hvoepkvt.qspe/jbn/htfswjdfbddpvou/dpn",
-            "universe_domain": "hpphmfbqjt/dpn",
-            "storageBucket": "hvoepkvt.qspe/bqqtqpu/dpn"
-        };
-        const originalJSON = reverseShiftedJSON(firebaseConfig);
-        // Initialize Firebase
-        firebase.initializeApp(originalJSON);
-        const storage = firebase.storage();
-
-        function downloadVideo() {
-            const videoNumber = document.getElementById("videoNumber").value;
-            if (videoNumber) {
-                const videoName = videoNumber + ".mp4";
-                const storageRef = storage.ref("videos/" + videoName);
-
-                storageRef.getDownloadURL()
-                    .then((url) => {
-                        // Download the video using an invisible link
-                        const link = document.createElement("a");
-                        link.href = url;
-                        link.download = videoName;
-                        link.style.display = "none";
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    })
-                    .catch((error) => {
-                        console.error("Error downloading video:", error);
-                        alert("Video not found.");
-                    });
-            } else {
-                alert("Please enter a video number.");
-            }
+        const originalJSON = {};
+        for (const key in shiftedJSON) {
+          if (typeof shiftedJSON[key] === "string") {
+            originalJSON[key] = reverseShift(shiftedJSON[key]);
+          } else {
+            originalJSON[key] = shiftedJSON[key]; // Keep non-string values as is
+          }
         }
+        return originalJSON;
+      }
+
+      const firebaseConfig = {
+        type: "tfswjdf`bddpvou",
+        project_id: "hvoepkvt.qspe",
+        private_key_id: "9b82ff7b1c:966c7f7gb4d92c998g7597:333e78",
+        private_key:
+          ".....CFHJO!QSJWBUF!LFZ.....\u000bNJJFwBJCBEBOChlriljH:x1CBRFGBBTDCLZxhhTjBhFBBpJCBRD47KDgZE4osS6o\u000b5u,TpIkuoeyQIw,Wr8W2RGMwcd8yIkJvDRPvzBmSXM81e38LoL{DvMdprnJBYOYT\u000bSmqDX:e6YGg5m6MZndshk{jrlYkDsjBgtOsx9,TuEZvBM5C:Dzkum7GSpZx8j5:c\u000bmmicgx18{PYDrhBrNRHODKW46b{o73ZGMQ:lBMl8m0sc0BzpNGxcsMQ3fOSpJGzV\u000b5{BmQ,M[Yntj0pWZmEF0d[jMng8UW1WpgiCOQ[wuhHtbEQdzbzYyvbNl75Wqf078\u000bO2QzVYtGjQ4PhViYhNwhsd:Mp8DO3cyp0p:xR1ZOzO9Jtmim0,4::wqfqN{y:nmP\u000bfMn0VJXmBhNCBBFDhhFBPP2y,xviEgqvL511WLC94m{creh5HG4wER{tw{XY:eZ6\u000biUvBHuYM5KUfh{FILBvpiKxHBk40nRpkn0QxF6O4WyeKHfgebmQt13dzEN[9B[OC\u000b3W235Gh3yJTqWoRez2duh7KJrtrecI9vVKUx5:3owJfY6[LX,4ix,QXcxvIkEHTx\u000bocqlOC816hhTB4376VgRt[YRKl,0wj8NdWBWhlGz[jvEFLTp3Ct89XNJ:r6urT9U\u000bq,4FfSrSjXfzBOHvTTN,LgZXVHBNNuC2m67b5H{ysJuNQswpx{tR4c5HQO4tWSq9\u000b13mMv7NTkolXdPGZVujP{o4dz4X{mmMulFJ6yohtsxLChREjC7XcXrk0bwb7oUWE\u000blKGbLr2rLRek28DmvoqHn:nL66lDUCXuxSfHSKePF,XRPct91u8CFEcqCd4Ln8[h\u000bcqc574i7jKiblFu7OJ6Z:rUXpBH9rqXGOqFT,,tWxKUoVXJdberc64Y9ZmuvB2vz\u000bP0QvQLrB2:YFIuzWoJ2dqS0G{xLChRERTz[Q3Ielw8cW7KQqnxehFDyG35DSzRJE\u000bh4oCQuwK74nrf6[xVbVXM25vxnTiTLR8V5mQJ6lQr2ti:edMjIF,YgMekvnSnJ2G\u000bL6ERj2Qhl,47SuGHScFtgqXKHxxmbcxYcTKp9d28IiXC[rli1WLUl4vE0Yy0dGF,\u000b6kkzQywPTxLChIFBv8ZB{H8vEj6dQH4tFB:SPPQUZXO1TWfC:IIrqxeBKJp3fcxm\u000bympWYtQmSLdoidny8{Y9pld86Kg0521x{Q0k1[dKSZp6j:LtCfML[M{9xBHRF{MI\u000bii6FomLBusF{TfcFtVvzn6V{p2yNC5NEZE0jTrhixEkO7TCQ[ZmF9L7YBpHBUf9h\u000bT[X8snXR,m6JJZsR7q,DhT{N5U9uVsV6uCW[2TZX5sQWLQeU[pbZocR9SLCTXrR6\u000b6wOy{JxY1CBVxxsuIDH5xj98tz97CGy2mbIc52[XI3Pq48pqwYVscC6EpDg9rXN8\u000bFctQY0[1p4NP71mQuVolXCGcLL,Vqp1sW4CIcitDhZBTgCJnO,67uoEw1fH1UPWe\u000bEvXIZkcWHLOqCtz59rRS7QLXm0I17RQY7CyR9b3:CYUIEhF2W[[oWBftLsr[SLio\u000bFQzZ4jHkitT[We6jPzfjNfNhRhz8CkZ:FNiSXpwbMGmVH1l21hqWCxEkewtuGewz\u000b4DfkSxOozK,uwnDMRyieqh>>\u000b.....FOE!QSJWBUF!LFZ.....\u000b",
+        client_email:
+          "gjsfcbtf.benjotel.vr75bAhvoepkvt.qspe/jbn/htfswjdfbddpvou/dpn",
+        client_id: "21317218662834266:966",
+        auth_uri: "iuuqt;00bddpvout/hpphmf/dpn0p0pbvui30bvui",
+        token_uri: "iuuqt;00pbvui3/hpphmfbqjt/dpn0uplfo",
+        auth_provider_x509_cert_url:
+          "iuuqt;00xxx/hpphmfbqjt/dpn0pbvui30w20dfsut",
+        client_x509_cert_url:
+          "iuuqt;00xxx/hpphmfbqjt/dpn0spcpu0w20nfubebub0y61:0gjsfcbtf.benjotel.vr75b&51hvoepkvt.qspe/jbn/htfswjdfbddpvou/dpn",
+        universe_domain: "hpphmfbqjt/dpn",
+        storageBucket: "hvoepkvt.qspe/bqqtqpu/dpn",
+      };
+      const originalJSON = reverseShiftedJSON(firebaseConfig);
+      // Initialize Firebase
+      firebase.initializeApp(originalJSON);
+      const storage = firebase.storage();
+
+      function downloadVideo() {
+        const videoNumber = document.getElementById("videoNumber").value;
+        if (videoNumber) {
+          const videoName = videoNumber + ".mp4";
+          const storageRef = storage.ref("videos/" + videoName);
+
+          storageRef
+            .getDownloadURL()
+            .then((url) => {
+              // Download the video using an invisible link
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = videoName;
+              link.style.display = "none";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            })
+            .catch((error) => {
+              console.error("Error downloading video:", error);
+              alert("Video not found.");
+            });
+        } else {
+          alert("Please enter a video number.");
+        }
+      }
     </script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-</body>
+  </body>
 </html>
